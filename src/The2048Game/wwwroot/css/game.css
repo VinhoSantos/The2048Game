@@ -1,0 +1,51 @@
+﻿html, body {
+    font-family: 'Courier New';
+    margin: 0;
+    padding: 0;
+}
+
+#background {
+    background-color: lightblue;
+    height: 100%;
+    min-height: 100%;
+    min-height: 100vh;
+    align-items: center;
+    margin: 0px;
+    padding: 0px;
+    box-sizing:border-box;
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+  display: flex;
+  align-items: center;
+}
+
+.horizontal-center {
+    margin: 0 auto;
+}
+
+.gamecube {
+    padding: 0;
+    margin: 0;
+    width: 500px;
+    height: 500px;
+    background-color: lightgrey;
+    border: 5px solid black;
+    overflow: hidden;
+    box-sizing:border-box;
+}
+
+.block {
+    width: 25%;
+    height: 122.5px;
+    min-height: 122.5px;
+    line-height:122.5px;
+    text-align: center;
+    display: inline-block;
+    border: 5px solid black;
+    box-sizing:border-box;
+    font-size: 1.5em;
+    font-weight: boldes;
+}

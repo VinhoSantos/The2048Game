@@ -1,0 +1,48 @@
+﻿@model The2048Game.Models.ViewModels.GameViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "The Game";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - The2048Game</title>
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/game.css" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/game.css" asp-append-version="true" />
+    </environment>
+</head>
+
+<body>
+    <div id="background" class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="center-block"><h2>2048 Game</h2></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="gamecube">
+                    @for (int i = 0; i < Model.GameState.GetLength(0); i++)
+                    {
+                        <div class="block vertical-center first">@Model.GameState[i, 0]</div>@for (int j = 1; j < Model.GameState.GetLength(1); j++)
+                        {<div class="block vertical-center">@Model.GameState[i, j]</div>}
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
