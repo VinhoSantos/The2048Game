@@ -27,22 +27,59 @@
 </head>
 
 <body>
-    <div id="background" class="container-fluid">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xs-12">
                 <div class="center-block"><h2>2048 Game</h2></div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
-                <div class="gamecube">
-                    @for (int i = 0; i < Model.GameState.GetLength(0); i++)
-                    {
-                        <div class="block vertical-center first">@Model.GameState[i, 0]</div>@for (int j = 1; j < Model.GameState.GetLength(1); j++)
-                        {<div class="block vertical-center">@Model.GameState[i, j]</div>}
-                    }
-                </div>
+            <div id="gamecube" class="col-xs-offset-1 col-xs-10 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+                @Html.Partial("_GameCube", Model)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-xs-offset-4">
+                <button type="button" class="btn btn-default btn-arrow" aria-label="Up" data-move="up">
+                    <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default btn-arrow" aria-label="left" data-move="left">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default btn-arrow" aria-label="Down" data-move="down">
+                    <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default btn-arrow" aria-label="Right" data-move="right">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                </button>
             </div>
         </div>
     </div>
+
+    <environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
 </body>
+
+</html>

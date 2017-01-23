@@ -1,0 +1,24 @@
+﻿@model The2048Game.Models.ViewModels.GameViewModel
+
+<div class="game-container">
+    <div class="block-container">
+        @for (int x = 0; x < Model.Game.State.GetLength(0); x++)
+        {@for (int y = 0; y < Model.Game.State.GetLength(1); y++)
+        {<div class="block">
+            @if (Model.Game.State[x, y] != null)
+            {<div class="block-number"><div><span>@Model.Game.State[x, y].Value.ToString()</span></div></div>}
+        </div>}
+        }
+    </div>
+    <div class="cube-container">
+        @for (int i = 0; i < Model.Game.State.GetLength(0); i++)
+        {
+            <div class="row cube-row">
+                @for (int j = 0; j < Model.Game.State.GetLength(1); j++)
+                {
+                    <div class="col-xs-3 cube-cell"></div>
+                }
+            </div>
+        }
+    </div>
+</div>

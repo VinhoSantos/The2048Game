@@ -1,51 +1,101 @@
 ﻿html, body {
-    font-family: 'Courier New';
+    font-family: Arial, Helvetica, sans-serif;
     margin: 0;
     padding: 0;
-}
-
-#background {
-    background-color: lightblue;
-    height: 100%;
-    min-height: 100%;
-    min-height: 100vh;
-    align-items: center;
-    margin: 0px;
-    padding: 0px;
+    box-sizing: border-box;
+    background-color: #ffffff;
     box-sizing:border-box;
-}
-
-.vertical-center {
-  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
-  min-height: 100vh; /* These two lines are counted as one :-)       */
-  display: flex;
-  align-items: center;
 }
 
 .horizontal-center {
     margin: 0 auto;
 }
 
-.gamecube {
-    padding: 0;
+.game-container {
     margin: 0;
-    width: 500px;
-    height: 500px;
-    background-color: lightgrey;
-    border: 5px solid black;
-    overflow: hidden;
-    box-sizing:border-box;
+    padding: 1%;
+    width: 100%;
+    background-color: #dadada;
+    position: relative;
+}
+
+.cube-container {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #dadada;
+    position: relative;
+    z-index: 1;
+}
+
+.cube-row {
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.cube-row:last-child {
+    margin-bottom: 0;
+}
+
+.cube-cell {
+    margin: 0;
+    padding: 12.5%;
+    padding-right: 1%;
+    background-color: #dadada;
+}
+
+.cube-cell:last-child {
+    padding-right: 0;
+}
+
+.block-container {
+    width: 98%;
+    position: absolute;
+    z-index: 2;
 }
 
 .block {
-    width: 25%;
-    height: 122.5px;
-    min-height: 122.5px;
-    line-height:122.5px;
-    text-align: center;
-    display: inline-block;
-    border: 5px solid black;
-    box-sizing:border-box;
+    margin: 0;
+    padding: 0;
+    margin-right: 1%;
+    margin-bottom: 1%;
+    width: 24.25%;
+    position: relative;
+    background-color: #dadada;
+    float: left;
+}
+
+.block:nth-child(4n) {
+    margin-right: 0;
+}
+
+.block:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+.block-number {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     font-size: 1.5em;
-    font-weight: boldes;
+    font-weight: bold;
+    background-color: #ffffff;
+}
+
+.block-number div {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.block-number span {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    color: #000000;
 }

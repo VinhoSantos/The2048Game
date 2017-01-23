@@ -7,7 +7,7 @@ namespace The2048Game.Models.ViewModels
 {
     public class GameViewModel
     {
-        public int?[,] GameState { get; set; }
+        public Game Game { get; set; }
 
     }
 }
