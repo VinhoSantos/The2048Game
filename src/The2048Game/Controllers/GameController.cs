@@ -30,8 +30,7 @@ namespace The2048Game.Controllers
             {
                 game = new Game()
                 {
-                    State = new int?[4, 4] { { 4096, 2048, 1024, 512 }, { 256, 128, 64, 32 }, { 16, 8, 4, 2 }, { null, 2, 4, null } },
-                    DoubleUpState = new bool[4, 4] { { false, false, false, false }, { false, false, false, false }, { false, false, false, false }, { false, false, false, false } },
+                    State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
                     Score = 0,
                     Highscore = 0
                 };
@@ -47,16 +46,15 @@ namespace The2048Game.Controllers
             return View(model);
         }
 
-        // POST: /Game/NextMove/
-        [HttpPost]
-        public ActionResult NextMove([FromBody] string move)
+        // GET: /Game/NextMove/
+        public IActionResult NextMove(string move = "up")
         {
             var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
             if (game == null)
             {
                 game = new Game()
                 {
-                    State = new int?[4, 4] { { 4096, 2048, 1024, 512 }, { 256, 128, 64, 32 }, { 16, 8, 4, 2 }, { null, 2, 4, null } },
+                    State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
                     Score = 0,
                     Highscore = 0
                 };
@@ -71,41 +69,246 @@ namespace The2048Game.Controllers
                 Game = game
             };
 
-            return PartialView("_GameCube");
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return PartialView("_GameCube", model);
         }
 
-        private Game CalculateGameState(Game game, string type)
+        private Game CalculateGameState(Game game, string type = "up")
         {
-            //type = "up"
-            for (int y = 0; y < game.State.GetLength(1) - 1; y++) //kolommen
+            switch (type)
             {
-                var x = 0;
-                while (x < game.State.GetLength(0) - 1) //rijen
-                {
-                    if (game.State[x, y] != null && game.State[x, y] == game.State[x + 1, y])
+                case "up":
+                    
+                    for (int y = 0; y < game.State.GetLength(1); y++) //kolommen : van 0 tot 3
                     {
-                        game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[x + 1, y] ?? 0);
-                        game.State[x + 1, y] = null;
+                        //deze lus zal de getallen verdubbelen indien ze gelijk zijn
+                        for (int x = 0; x < game.State.GetLength(0) - 1; x++) //rijen : van 0 tot 2
+                        {
+                            int i = x + 1;
+
+                            while (true)
+                            {
+                                if (game.State[x, y] != null)
+                                {
+                                    if (game.State[x, y] == game.State[i, y])
+                                    {
+                                        game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[i, y] ?? 0);
+                                        game.State[i, y] = null;
+                                    }
+                                    break;
+                                }
+
+                                i++;
+                                if (i > game.State.GetLength(0) - 1)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        //deze lus gaat alle lege gaten opvullen
+                        for (int x = 0; x < game.State.GetLength(0) - 1; x++) // van 0 tot 2
+                        {
+                            if (game.State[x, y] == null)
+                            {
+                                int i = x + 1;
+                                while (true)
+                                {
+                                    if (game.State[i, y] != null)
+                                    {
+                                        game.State[x, y] = game.State[i, y];
+                                        game.State[i, y] = null;
+                                        break;
+                                    }
+
+                                    i++;
+
+                                    if (i > game.State.GetLength(0) - 1)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    x++;
-                }
+                    break;
 
-                x = 0;
-                var begin = 0;
-                var gaps = false;
-                while (true)
-                {
-                    while (begin < game.State.GetLength(0) - 1)
+                case "down":
 
-                    if (!gaps)
-                        break;
-                    else
-                        x++;
-                }
+                    for (int y = 0; y < game.State.GetLength(1) ; y++) //kolommen : van 0 tot 3
+                    {
+                        //deze lus zal de getallen verdubbelen indien ze gelijk zijn
+                        for (int x = game.State.GetLength(0) - 1; x >= 1; x--) //rijen : van 3 tot 1
+                        {
+                            int i = x - 1;
+
+                            while (true)
+                            {
+                                if (game.State[x, y] != null)
+                                {
+                                    if (game.State[x, y] == game.State[i, y])
+                                    {
+                                        game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[i, y] ?? 0);
+                                        game.State[i, y] = null;
+                                    }
+                                    break;
+                                }
+
+                                i--;
+                                if (i < 0)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        //deze lus gaat alle lege gaten opvullen
+                        for (int x = game.State.GetLength(0) - 1; x >= 1 ; x--) // van 3 tot 1
+                        {
+                            if (game.State[x, y] == null)
+                            {
+                                int i = x - 1;
+                                while (true)
+                                {
+                                    if (game.State[i, y] != null)
+                                    {
+                                        game.State[x, y] = game.State[i, y];
+                                        game.State[i, y] = null;
+                                        break;
+                                    }
+
+                                    i--;
+
+                                    if (i < 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+
+                case "left":
+
+                    for (int x = 0; x < game.State.GetLength(1); x++) //rijen : van 0 tot 3
+                    {
+                        //deze lus zal de getallen verdubbelen indien ze gelijk zijn
+                        for (int y = 0; y < game.State.GetLength(0) - 1; y++) //kolommen : van 0 tot 2
+                        {
+                            int i = y + 1;
+
+                            while (true)
+                            {
+                                if (game.State[x, y] != null)
+                                {
+                                    if (game.State[x, y] == game.State[x, i])
+                                    {
+                                        game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[x, i] ?? 0);
+                                        game.State[x, i] = null;
+                                    }
+                                    break;
+                                }
+
+                                i++;
+                                if (i > game.State.GetLength(0) - 1)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        //deze lus gaat alle lege gaten opvullen
+                        for (int y = 0; y < game.State.GetLength(0) - 1; y++) // van 0 tot 2
+                        {
+                            if (game.State[x, y] == null)
+                            {
+                                int i = y + 1;
+                                while (true)
+                                {
+                                    if (game.State[x, i] != null)
+                                    {
+                                        game.State[x, y] = game.State[x, i];
+                                        game.State[x, i] = null;
+                                        break;
+                                    }
+
+                                    i++;
+
+                                    if (i > game.State.GetLength(0) - 1)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    break;
+
+                case "right":
+
+                    for (int x = 0; x < game.State.GetLength(1); x++) //rijen : van 0 tot 3
+                    {
+                        //deze lus zal de getallen verdubbelen indien ze gelijk zijn
+                        for (int y = game.State.GetLength(0) - 1; y >= 1; y--) //kolommen : van 3 tot 1
+                        {
+                            int i = y - 1;
+
+                            while (true)
+                            {
+                                if (game.State[x, y] != null)
+                                {
+                                    if (game.State[x, y] == game.State[x, i])
+                                    {
+                                        game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[x, i] ?? 0);
+                                        game.State[x, i] = null;
+                                    }
+                                    break;
+                                }
+
+                                i--;
+                                if (i < 0)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        //deze lus gaat alle lege gaten opvullen
+                        for (int y = game.State.GetLength(0) - 1; y >= 1; y--) // van 3 tot 1
+                        {
+                            if (game.State[x, y] == null)
+                            {
+                                int i = y - 1;
+                                while (true)
+                                {
+                                    if (game.State[x, i] != null)
+                                    {
+                                        game.State[x, y] = game.State[x, i];
+                                        game.State[x, i] = null;
+                                        break;
+                                    }
+
+                                    i--;
+
+                                    if (i < 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+
             }
-
             return game;
+
         }
     }
 }
