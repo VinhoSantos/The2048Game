@@ -89,7 +89,7 @@ namespace The2048Game.Controllers
 
                             while (true)
                             {
-                                if (game.State[x, y] != null)
+                                if (game.State[x, y] != null && game.State[i, y] != null)
                                 {
                                     if (game.State[x, y] == game.State[i, y])
                                     {
@@ -146,7 +146,7 @@ namespace The2048Game.Controllers
 
                             while (true)
                             {
-                                if (game.State[x, y] != null)
+                                if (game.State[x, y] != null && game.State[i, y] != null)
                                 {
                                     if (game.State[x, y] == game.State[i, y])
                                     {
@@ -203,7 +203,7 @@ namespace The2048Game.Controllers
 
                             while (true)
                             {
-                                if (game.State[x, y] != null)
+                                if (game.State[x, y] != null && game.State[x, i] != null)
                                 {
                                     if (game.State[x, y] == game.State[x, i])
                                     {
@@ -260,7 +260,7 @@ namespace The2048Game.Controllers
 
                             while (true)
                             {
-                                if (game.State[x, y] != null)
+                                if (game.State[x, y] != null && game.State[x, i] != null)
                                 {
                                     if (game.State[x, y] == game.State[x, i])
                                     {
