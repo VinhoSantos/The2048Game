@@ -31,6 +31,7 @@ namespace The2048Game.Controllers
                 game = new Game()
                 {
                     State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
+                    PreviousState = new int?[4, 4],
                     Score = 0,
                     Highscore = 0
                 };
@@ -47,7 +48,7 @@ namespace The2048Game.Controllers
         }
 
         // GET: /Game/NextMove/
-        public IActionResult NextMove(string move = "up")
+        public IActionResult NextMove(string move)
         {
             var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
             if (game == null)
@@ -55,12 +56,14 @@ namespace The2048Game.Controllers
                 game = new Game()
                 {
                     State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
+                    PreviousState = new int?[4, 4],
                     Score = 0,
                     Highscore = 0
                 };
             }
             else
             {
+                game.PreviousState = game.State;
                 game = CalculateGameState(game, move);
             }
 
@@ -95,6 +98,8 @@ namespace The2048Game.Controllers
                                     {
                                         game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[i, y] ?? 0);
                                         game.State[i, y] = null;
+                                        //optellen bij de score
+                                        game.Score += (int)game.State[x, y];
                                     }
                                     break;
                                 }
@@ -152,6 +157,8 @@ namespace The2048Game.Controllers
                                     {
                                         game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[i, y] ?? 0);
                                         game.State[i, y] = null;
+                                        //optellen bij de score
+                                        game.Score += (int)game.State[x, y];
                                     }
                                     break;
                                 }
@@ -209,6 +216,8 @@ namespace The2048Game.Controllers
                                     {
                                         game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[x, i] ?? 0);
                                         game.State[x, i] = null;
+                                        //optellen bij de score
+                                        game.Score += (int)game.State[x, y];
                                     }
                                     break;
                                 }
@@ -266,6 +275,8 @@ namespace The2048Game.Controllers
                                     {
                                         game.State[x, y] = (game.State[x, y] ?? 0) + (game.State[x, i] ?? 0);
                                         game.State[x, i] = null;
+                                        //optellen bij de score
+                                        game.Score += (int)game.State[x, y];
                                     }
                                     break;
                                 }
@@ -307,8 +318,23 @@ namespace The2048Game.Controllers
                     break;
 
             }
+
+            if (game.Score > game.Highscore)
+                game.Highscore = game.Score;
+
             return game;
 
+        }
+
+        public IActionResult Reset()
+        {
+            _session.Clear();
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Undo()
+        {
+            return RedirectToAction("Index");
         }
     }
 }

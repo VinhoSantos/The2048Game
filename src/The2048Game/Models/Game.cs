@@ -10,5 +10,6 @@ namespace The2048Game.Models
         public int?[,] State { get; set; }
         public int Score { get; set; }
         public int Highscore { get; set; }
+        public int?[,] PreviousState { get; set; }
     }
 }

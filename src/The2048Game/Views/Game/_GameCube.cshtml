@@ -1,5 +1,7 @@
 ﻿@model The2048Game.Models.ViewModels.GameViewModel
 
+<div class="text-right">Highscore: @Model.Game.Highscore</div>
+<div class="text-right">Score: @Model.Game.Score</div>
 <div class="game-container">
     <div class="block-container">
         @for (int x = 0; x < Model.Game.State.GetLength(0); x++)
