@@ -15,15 +15,42 @@
     margin: 0;
     padding: 1%;
     width: 100%;
-    background-color: #dadada;
+    background-color: #a9a9a9;
     position: relative;
+}
+
+.game-over-container {
+    //display: none;
+    width: 98%;
+    z-index: 3;
+    background-color:black;
+    position: absolute;
+    opacity: 0.8;
+}
+
+.game-over-block {
+    position: relative;  
+    width: 100%;
+}
+
+.game-over-block:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+.game-over-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 2em;
 }
 
 .cube-container {
     margin: 0;
     padding: 0;
     width: 100%;
-    background-color: #dadada;
+    background-color: #a9a9a9;
     position: relative;
     z-index: 1;
 }
@@ -42,7 +69,7 @@
     margin: 0;
     padding: 12.5%;
     padding-right: 1%;
-    background-color: #dadada;
+    background-color: #a9a9a9;
 }
 
 .cube-cell:last-child {
@@ -82,9 +109,9 @@
     bottom: 0;
     left: 0;
     right: 0;
-    font-size: 1.5em;
+    font-size: 2.5em;
     font-weight: bold;
-    background-color: #ffffff;
+    background-color: #a9a9a9;
 }
 
 .block-number div {
@@ -103,3 +130,62 @@
 .arrow-block {
     margin-top: 40px;
 }
+
+.btn-pressed {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+.number-2 {
+    background-color:#b10000;
+}
+
+.number-4 {
+    background-color:#dc0000;
+}
+
+.number-8 {
+    background-color:#ff6500;
+}
+
+.number-16 {
+    background-color:#ff9400;
+}
+
+.number-32 {
+    background-color:#ffc300;
+}
+
+.number-64 {
+    background-color:#ffe200;
+}
+
+.number-128 {
+    background-color:#fffa00;
+}
+
+.number-256 {
+    background-color:#ddff00;
+}
+
+.number-512 {
+    background-color:#b6ff00;
+}
+
+.number-1024 {
+    background-color:#60ff00;
+}
+
+.number-2048 {
+    background-color:#0a8a01;
+}
+    .number-2048 span {
+        color:#ffffff;
+    }
+
+.number-4096 {
+    background-color:#000000;
+}
+    .number-4096 span {
+        color:#ffffff;
+    }

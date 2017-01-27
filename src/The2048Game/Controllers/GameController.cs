@@ -28,13 +28,7 @@ namespace The2048Game.Controllers
             var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
             if (game == null)
             {
-                game = new Game()
-                {
-                    State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
-                    PreviousState = new int?[4, 4],
-                    Score = 0,
-                    Highscore = 0
-                };
+                game = StartNewGame();
             }
 
             var model = new GameViewModel()
@@ -53,18 +47,16 @@ namespace The2048Game.Controllers
             var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
             if (game == null)
             {
-                game = new Game()
-                {
-                    State = new int?[4, 4] { { 8, 8, 4, 2 }, { 8, 4, 2, 2 }, { 4, 2, 2, 4 }, { 4, 2, null, 2 } },
-                    PreviousState = new int?[4, 4],
-                    Score = 0,
-                    Highscore = 0
-                };
+                game = StartNewGame();
             }
             else
             {
-                game.PreviousState = game.State;
+                Array.Copy(game.State, game.PreviousState, game.State.Length);
                 game = CalculateGameState(game, move);
+                if (!AreGameStatesEqual(game.State, game.PreviousState))
+                    game.State = AddNewNumberToGrid(game.State);
+                if (NoMoreMovesLeft(game.State))
+                    game.GameOver = true;
             }
 
             var model = new GameViewModel()
@@ -76,13 +68,48 @@ namespace The2048Game.Controllers
 
             return PartialView("_GameCube", model);
         }
+        
+
+        public IActionResult NewGame()
+        {
+            _session.Clear();
+
+            Game game = StartNewGame();
+
+            var model = new GameViewModel()
+            {
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return PartialView("_GameCube", model);
+        }
+
+        public IActionResult Undo()
+        {
+            Game game = HttpContext.Session.GetObjectFromJson<Game>("Game");
+
+            if (game != null)
+                game.State = game.PreviousState;
+
+            var model = new GameViewModel()
+            {
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return PartialView("_GameCube", model);
+        }
+        
 
         private Game CalculateGameState(Game game, string type = "up")
         {
             switch (type)
             {
                 case "up":
-                    
+
                     for (int y = 0; y < game.State.GetLength(1); y++) //kolommen : van 0 tot 3
                     {
                         //deze lus zal de getallen verdubbelen indien ze gelijk zijn
@@ -142,7 +169,7 @@ namespace The2048Game.Controllers
 
                 case "down":
 
-                    for (int y = 0; y < game.State.GetLength(1) ; y++) //kolommen : van 0 tot 3
+                    for (int y = 0; y < game.State.GetLength(1); y++) //kolommen : van 0 tot 3
                     {
                         //deze lus zal de getallen verdubbelen indien ze gelijk zijn
                         for (int x = game.State.GetLength(0) - 1; x >= 1; x--) //rijen : van 3 tot 1
@@ -172,7 +199,7 @@ namespace The2048Game.Controllers
                         }
 
                         //deze lus gaat alle lege gaten opvullen
-                        for (int x = game.State.GetLength(0) - 1; x >= 1 ; x--) // van 3 tot 1
+                        for (int x = game.State.GetLength(0) - 1; x >= 1; x--) // van 3 tot 1
                         {
                             if (game.State[x, y] == null)
                             {
@@ -255,7 +282,7 @@ namespace The2048Game.Controllers
                             }
                         }
                     }
-                    
+
                     break;
 
                 case "right":
@@ -320,21 +347,158 @@ namespace The2048Game.Controllers
             }
 
             if (game.Score > game.Highscore)
+            {
                 game.Highscore = game.Score;
+                HttpContext.Response.Cookies.Append("highscore", game.Highscore.ToString());
+            }
 
             return game;
-
         }
 
-        public IActionResult Reset()
+        private int?[,] AddNewNumberToGrid(int?[,] gameState)
         {
-            _session.Clear();
-            return RedirectToAction("Index");
+            List<Tuple<int, int>> emptyPlaces = new List<Tuple<int, int>>();
+
+            //calculate all empty places in grid
+            for (int x = 0; x < gameState.GetLength(0); x++) //rijen
+            {
+                for (int y = 0; y < gameState.GetLength(1); y++) //kolommen
+                {
+                    if (gameState[x, y] == null)
+                    {
+                        emptyPlaces.Add(new Tuple<int, int>(x, y));
+                    }
+                }
+            }
+
+            if (emptyPlaces.Count > 0)
+            {
+                Random random = new Random();
+                Tuple<int, int> emptyPlace = emptyPlaces.ElementAt(random.Next(0, emptyPlaces.Count - 1));
+
+                if (random.Next(0, 9) == 0)
+                    gameState[emptyPlace.Item1, emptyPlace.Item2] = 4;
+                else
+                    gameState[emptyPlace.Item1, emptyPlace.Item2] = 2;
+            }
+
+            return gameState;
         }
 
-        public IActionResult Undo()
+        private Game StartNewGame()
         {
-            return RedirectToAction("Index");
+            Game game = new Game()
+            {
+                State = new int?[4, 4],
+                PreviousState = new int?[4, 4],
+                Score = 0,
+                GameOver = false
+            };
+
+            var highscore = HttpContext.Request.Cookies["highscore"];
+            if (highscore != null)
+            {
+                game.Highscore = int.Parse(highscore.ToString());
+            }
+
+            game.State = AddNewNumberToGrid(game.State);
+            game.PreviousState = game.State;
+
+            return game;
         }
+
+        private bool NoMoreMovesLeft(int?[,] gameState)
+        {
+            //check if grid has empty fields, if yes, game can't be over yet
+            if (HasEmptyValues(gameState))
+                return false;
+            
+            //then check if there are equal values next to eachother in the whole grid
+            for (int x = 0; x < gameState.GetLength(0); x++)
+            {
+                for (int y = 0; y < gameState.GetLength(1); y++)
+                {
+                    //if (x == 0 && y == 0) //top-left
+                    //{
+                    //    if (gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y + 1])
+                    //        return false;
+                    //}
+                    //else if (x == 0 && y == gameState.GetLength(1) - 1) //top-right
+                    //{
+                    //    if (gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y - 1])
+                    //        return false;
+                    //}
+                    //else if (x == gameState.GetLength(0) - 1 && y == 0) //bottom-left
+                    //{
+                    //    if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x, y + 1])
+                    //        return false;
+                    //}
+                    //else if (x == gameState.GetLength(0) - 1 && y == gameState.GetLength(1) - 1) //bottom-right
+                    //{
+                    //    if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x, y - 1])
+                    //        return false;
+                    //}
+
+                    if (!((x == 0 && y == 0) || (x == 0 && y == gameState.GetLength(1) - 1) || (x == gameState.GetLength(0) - 1 && y == 0) || (x == gameState.GetLength(0) - 1 && y == gameState.GetLength(1) - 1))) //ignore the 4 corners, there values will get checked by their neighbours
+                    {
+                        if (x == 0 && y != 0 && y != gameState.GetLength(1) - 1) // upper row, not corners
+                        {
+                            if (gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y - 1] || gameState[x, y] == gameState[x, y + 1])
+                                return false;
+                        }
+                        else if (x == gameState.GetLength(0) - 1 && y != 0 && y != gameState.GetLength(1) - 1) // bottom row, not corners
+                        {
+                            if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x, y - 1] || gameState[x, y] == gameState[x, y + 1])
+                                return false;
+                        }
+                        else if (x != 0 && x != gameState.GetLength(0) - 1 && y == 0) // left column, not corners
+                        {
+                            if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y + 1])
+                                return false;
+                        }
+                        else if (x != 0 && x != gameState.GetLength(0) - 1 && y == gameState.GetLength(1) - 1) // right column, not corners
+                        {
+                            if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y - 1])
+                                return false;
+                        }
+                        else // (x != 0 && x != gameState.GetLength(0) - 1 && y != 0 && y != gameState.GetLength(1) - 1) //the other fields in the grid
+                        {
+                            if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y - 1] || gameState[x, y] == gameState[x, y + 1])
+                                return false;
+                        }
+                    }
+                }
+            }
+
+            //there are no more moves left if you get to here
+            return true;
+        }
+
+        private bool AreGameStatesEqual(int?[,] gameState1, int?[,] gameState2)
+        {
+            for (int x = 0; x < gameState1.GetLength(0); x++)
+            {
+                for (int y = 0; y < gameState1.GetLength(1); y++)
+                {
+                    if (gameState1[x, y] != gameState2[x, y])
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private bool HasEmptyValues(int?[,] gameState)
+        {
+            for (int x = 0; x < gameState.GetLength(0); x++)
+            {
+                for (int y = 0; y < gameState.GetLength(1); y++)
+                {
+                    if (gameState[x, y] == null)
+                        return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
