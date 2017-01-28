@@ -51,12 +51,21 @@ namespace The2048Game.Controllers
             }
             else
             {
-                Array.Copy(game.State, game.PreviousState, game.State.Length);
+                int?[,] tempState = new int?[game.State.GetLength(0), game.State.GetLength(1)];
+                int tempScore = game.Score;
+                Array.Copy(game.State, tempState, game.State.Length);
                 game = CalculateGameState(game, move);
-                if (!AreGameStatesEqual(game.State, game.PreviousState))
+                if (!AreGameStatesEqual(game.State, tempState))
+                {
                     game.State = AddNewNumberToGrid(game.State);
+                    game.Undo = true;
+                    Array.Copy(tempState, game.PreviousState, game.State.Length);
+                    game.PreviousScore = tempScore;
+                }
                 if (NoMoreMovesLeft(game.State))
                     game.GameOver = true;
+                else
+                    game.GameOver = false;
             }
 
             var model = new GameViewModel()
@@ -91,7 +100,12 @@ namespace The2048Game.Controllers
             Game game = HttpContext.Session.GetObjectFromJson<Game>("Game");
 
             if (game != null)
+            {
                 game.State = game.PreviousState;
+                game.Score = game.PreviousScore;
+                game.Undo = false;
+                game.GameOver = false;
+            }
 
             var model = new GameViewModel()
             {
@@ -355,7 +369,7 @@ namespace The2048Game.Controllers
             return game;
         }
 
-        private int?[,] AddNewNumberToGrid(int?[,] gameState)
+        public int?[,] AddNewNumberToGrid(int?[,] gameState)
         {
             List<Tuple<int, int>> emptyPlaces = new List<Tuple<int, int>>();
 
@@ -392,6 +406,8 @@ namespace The2048Game.Controllers
                 State = new int?[4, 4],
                 PreviousState = new int?[4, 4],
                 Score = 0,
+                PreviousScore = 0,
+                Undo = false,
                 GameOver = false
             };
 
@@ -403,6 +419,7 @@ namespace The2048Game.Controllers
 
             game.State = AddNewNumberToGrid(game.State);
             game.PreviousState = game.State;
+            game.PreviousScore = game.Score;
 
             return game;
         }
@@ -418,27 +435,6 @@ namespace The2048Game.Controllers
             {
                 for (int y = 0; y < gameState.GetLength(1); y++)
                 {
-                    //if (x == 0 && y == 0) //top-left
-                    //{
-                    //    if (gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y + 1])
-                    //        return false;
-                    //}
-                    //else if (x == 0 && y == gameState.GetLength(1) - 1) //top-right
-                    //{
-                    //    if (gameState[x, y] == gameState[x + 1, y] || gameState[x, y] == gameState[x, y - 1])
-                    //        return false;
-                    //}
-                    //else if (x == gameState.GetLength(0) - 1 && y == 0) //bottom-left
-                    //{
-                    //    if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x, y + 1])
-                    //        return false;
-                    //}
-                    //else if (x == gameState.GetLength(0) - 1 && y == gameState.GetLength(1) - 1) //bottom-right
-                    //{
-                    //    if (gameState[x, y] == gameState[x - 1, y] || gameState[x, y] == gameState[x, y - 1])
-                    //        return false;
-                    //}
-
                     if (!((x == 0 && y == 0) || (x == 0 && y == gameState.GetLength(1) - 1) || (x == gameState.GetLength(0) - 1 && y == 0) || (x == gameState.GetLength(0) - 1 && y == gameState.GetLength(1) - 1))) //ignore the 4 corners, there values will get checked by their neighbours
                     {
                         if (x == 0 && y != 0 && y != gameState.GetLength(1) - 1) // upper row, not corners

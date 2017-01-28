@@ -13,13 +13,13 @@ $(function () {
         NextMove($(this).data("move", this));
     });
 
-    $('#btnNewGame').click(function () {
-        NewGame();
-    });
+    //$('#btnNewGame').click(function () {
+    //    NewGame();
+    //});
 
-    $('#btnUndo').click(function () {
-        Undo();
-    });
+    //$('#btnUndo').click(function () {
+    //    Undo();
+    //});
 
     document.addEventListener("keydown", function(event) {
         //console.log(event.which);
@@ -84,9 +84,6 @@ function NewGame() {
         console.log("new game");
         $('#gamecube').html(data);
         //$('.game-over-container').hide();
-        $('#btnNewGame').click(function () {
-            NewGame();
-        });
     })
     .fail(function (data) {
     })
@@ -101,10 +98,7 @@ function Undo() {
     .done(function (data) {
         console.log("undo");
         $('#gamecube').html(data);
-        //$('.game-over-container').hide();
-        $('#btnUndo').click(function () {
-            Undo();
-        });
+        //$('.game-over-container').hide();;
     })
     .fail(function (data) {
     })

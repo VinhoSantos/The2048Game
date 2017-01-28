@@ -4,29 +4,49 @@
     <div class="text-right">Highscore: @Model.Game.Highscore</div>
     <div class="text-right">Score: @Model.Game.Score</div>
     <div class="text-right">
-        <button id="btnNewGame" type="button" class="btn btn-success btn-sm" aria-label="new game">
+        <button id="btnNewGame" type="button" class="btn btn-success btn-sm" aria-label="new game" onclick="NewGame();">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> NEW GAME
         </button>
-        <button id="btnUndo" type="button" class="btn btn-primary btn-sm" aria-label="undo">
-            <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
-        </button>
+        @if (Model.Game.Undo ?? false)
+        {
+            <button id="btnUndo" type="button" class="btn btn-primary btn-sm" aria-label="undo" onclick="Undo();">
+                <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+            </button>
+        }
+        else
+        {
+            <button id="btnUndo" type="button" class="btn btn-primary btn-sm" aria-label="undo" disabled="disabled">
+                <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+            </button>
+        }
     </div>
 </div>
 <div class="game-container">
     @if (Model.Game.GameOver)
     {
-    <div class="game-over-container">
-        <div class="game-over-block">
-            <div class="block-number"><div><span>GAME OVER</span></div></div>
+        <div class="game-over-container">
+            <div class="game-over-block">
+                <div class="game-over-number">
+                    <div>
+                        <span>GAME OVER</span>                        
+                    </div>
+                    <div>
+                        <div>
+                            <button id="btnNewGame2" type="button" class="btn btn-success btn-sm" aria-label="new game" onclick="NewGame();">
+                                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Speel opnieuw
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
     }
     <div class="block-container">
         @for (int x = 0; x < Model.Game.State.GetLength(0); x++)
         {@for (int y = 0; y < Model.Game.State.GetLength(1); y++)
         {<div class="block">
             @if (Model.Game.State[x, y] != null)
-            {<div class="block-number"><div class="number-@(Model.Game.State[x, y].Value > 4096 ? "4096" : Model.Game.State[x, y].Value.ToString())"><span>@Model.Game.State[x, y].Value.ToString()</span></div></div>}
+            {<div class="block-number"><div class="number number-@(Model.Game.State[x, y].Value > 4096 ? "4096" : Model.Game.State[x, y].Value.ToString())"><span>@Model.Game.State[x, y].Value.ToString()</span></div></div>}
         </div>}
         }
     </div>

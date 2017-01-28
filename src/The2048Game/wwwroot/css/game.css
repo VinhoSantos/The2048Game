@@ -17,15 +17,14 @@
     width: 100%;
     background-color: #a9a9a9;
     position: relative;
+    border-radius: 2%;
 }
 
 .game-over-container {
-    //display: none;
     width: 98%;
     z-index: 3;
-    background-color:black;
+    background-color: rgba(0,0,0,0.8);
     position: absolute;
-    opacity: 0.8;
 }
 
 .game-over-block {
@@ -91,6 +90,7 @@
     position: relative;
     background-color: #dadada;
     float: left;
+    border-radius: 5%;
 }
 
 .block:nth-child(4n) {
@@ -103,7 +103,7 @@
     padding-top: 100%;
 }
 
-.block-number {
+.block-number, .game-over-number {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -111,20 +111,40 @@
     right: 0;
     font-size: 2.5em;
     font-weight: bold;
+}
+
+.block-number {
     background-color: #a9a9a9;
 }
 
-.block-number div {
+.block-number > div {
     display: table;
     width: 100%;
     height: 100%;
 }
 
-.block-number span {
+.block-number > div > span {
     display: table-cell;
     text-align: center;
     vertical-align: middle;
     color: #000000;
+}
+
+.game-over-number > div {
+    display: table;
+    width: 100%;
+    height: 50%;
+}
+
+.game-over-number > div > span, .game-over-number > div > div {
+    display: table-cell;
+    text-align: center;
+    vertical-align: bottom;
+    color: #ffffff;
+}
+
+.game-over-number > div > div {
+    vertical-align: top;
 }
 
 .arrow-block {
@@ -134,6 +154,10 @@
 .btn-pressed {
     background-color: #e6e6e6;
     border-color: #adadad;
+}
+
+.number {
+    border-radius: 5%;
 }
 
 .number-2 {
