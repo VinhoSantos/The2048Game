@@ -9,8 +9,8 @@ $(function () {
     //    $('.game-over-container').hide();
     //}
 
-    $('button.btn-arrow').click(function () {
-        NextMove($(this).data("move", this));
+    $("button.btn-arrow").click(function () {
+        NextMove($(this).data("move"), this);
     });
 
     //$('#btnNewGame').click(function () {
@@ -57,22 +57,22 @@ function NextMove(move, obj) {
     oParams["move"] = move;
 
     $.get(url, oParams)
-    .done(function (data) {
-        console.log(move);
-        $('#gamecube').html(data);
+        .done(function(data) {
+            console.log(move);
+            $('#gamecube').html(data);
 
-        //if ($('#gameover').val() === "True") {
-        //    $('.game-over-container').show();
-        //}
-        //else {
-        //    $('.game-over-container').hide();
-        //}
-    })
-    .fail(function (data) {
-    })
-    .always(function () {
-        //$(obj).removeClass('btn-pressed');
-    })
+            //if ($('#gameover').val() === "True") {
+            //    $('.game-over-container').show();
+            //}
+            //else {
+            //    $('.game-over-container').hide();
+            //}
+        })
+        .fail(function(data) {
+        })
+        .always(function() {
+            //$(obj).removeClass('btn-pressed');
+        });
 
 }
 
@@ -80,28 +80,28 @@ function NewGame() {
     var url = "/Game/NewGame";
 
     $.get(url)
-    .done(function (data) {
-        console.log("new game");
-        $('#gamecube').html(data);
-        //$('.game-over-container').hide();
-    })
-    .fail(function (data) {
-    })
-    .always(function () {
-    })
+        .done(function(data) {
+            console.log("new game");
+            $('#gamecube').html(data);
+            //$('.game-over-container').hide();
+        })
+        .fail(function(data) {
+        })
+        .always(function() {
+        });
 }
 
 function Undo() {
     var url = "/Game/Undo";
 
     $.get(url)
-    .done(function (data) {
-        console.log("undo");
-        $('#gamecube').html(data);
-        //$('.game-over-container').hide();;
-    })
-    .fail(function (data) {
-    })
-    .always(function () {
-    })
+        .done(function(data) {
+            console.log("undo");
+            $('#gamecube').html(data);
+            //$('.game-over-container').hide();
+        })
+        .fail(function(data) {
+        })
+        .always(function() {
+        });
 }

@@ -43,7 +43,7 @@
     }
     <div class="block-container">
         @for (int x = 0; x < Model.Game.State.GetLength(0); x++)
-        {@for (int y = 0; y < Model.Game.State.GetLength(1); y++)
+        {for (int y = 0; y < Model.Game.State.GetLength(1); y++)
         {<div class="block">
             @if (Model.Game.State[x, y] != null)
             {<div class="block-number"><div class="number number-@(Model.Game.State[x, y].Value > 4096 ? "4096" : Model.Game.State[x, y].Value.ToString())"><span>@Model.Game.State[x, y].Value.ToString()</span></div></div>}

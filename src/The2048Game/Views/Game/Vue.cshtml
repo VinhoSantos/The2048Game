@@ -1,0 +1,173 @@
+﻿@model The2048Game.Models.ViewModels.GameViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "The Game";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - The2048Game</title>
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/game.css" />
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/vue-resource@1.2.1/dist/vue-resource.min.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/game.css" asp-append-version="true" />
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/vue-resource@1.2.1/dist/vue-resource.min.js"></script>
+    </environment>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="text-center"><h2>2048 Game</h2></div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="gamecube" class="col-xs-offset-1 col-xs-10 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+                <div>
+                    <div class="text-right">Highscore: {{highScore}}</div>
+                    <div class="text-right">Score: {{score}}</div>
+                    <div class="text-right">
+                        <button id="btnNewGame" type="button" class="btn btn-success btn-sm" aria-label="new game" v-on:click="startNewGame">
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> NEW GAME
+                        </button>
+                        <button id="btnUndo" type="button" class="btn btn-primary btn-sm" aria-label="undo" v-on:click="undo">
+                            <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="game-container">
+                    <div class="game-over-container" v-if="gameOver">
+                        <div class="game-over-block">
+                            <div class="game-over-number">
+                                <div>
+                                    <span>GAME OVER</span>
+                                </div>
+                                <div>
+                                    <div>
+                                        <button id="btnNewGame2" type="button" class="btn btn-success btn-sm" aria-label="new game" v-on:click="startNewGame">
+                                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Speel opnieuw
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block-container">
+                        <div class="block">
+                            <div class="block-number">
+                                <div class="number">
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cube-container">
+                        <div class="row cube-row">
+                            <div class="col-xs-3 cube-cell"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row arrow-block">
+            <div class="col-xs-12 text-center">
+                <button type="button" class="btn btn-default btn-lg btn-arrow" aria-label="Up" data-move="up" v-on:click="moveNext('up')">
+                    <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <button type="button" class="btn btn-default btn-lg btn-arrow" aria-label="left" data-move="left" v-on:click="moveNext('left')">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-lg btn-arrow" aria-label="Down" data-move="down" v-on:click="moveNext('down')">
+                    <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-lg btn-arrow" aria-label="Right" data-move="right" v-on:click="moveNext('right')">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <environment names="Development">
+    </environment>
+    <environment names="Staging,Production">
+    </environment>
+    
+    <script>
+
+        var app = new Vue({
+            el: '#gamecube',
+            data: {
+                dimensions: @Model.Game.State.GetLength(0),
+                gameState: @Html.Raw(Json.Serialize(Model.Game.State)),
+                gameOver: false,
+                score: 0,
+                highScore: 0
+            },
+            methods: {
+                nextMove: function (move) {
+                    this.$http.get('/Game/NextMoveVue', { move: move }).then(response => {
+                        var game = response.body.game;
+                        this.gameState = game.state;
+                        //this.gameOver = game.gameOver;
+                        this.score = game.score;
+                        this.highScore = game.highScore;
+                    },
+                        response => {
+                            console.log("Next move (up) error: " + response.body);
+                        });
+                },
+                startNewGame: function() {
+                    this.$http.get('/Game/NewGameVue').then(response => {
+                        var game = response.body.game;
+                        this.gameState = game.state;
+                        //this.gameOver = game.gameOver;
+                        this.score = game.score;
+                        this.highScore = game.highScore;
+                        },
+                        response => {
+                            console.log("New game error: " + response.body);
+                        });
+                },
+                undo: function() {
+                    this.$http.get('/Game/UndoVue').then(response => {
+                        var game = response.body.game;
+                        this.gameState = game.state;
+                        //this.gameOver = game.gameOver;
+                        this.score = game.score;
+                        this.highScore = game.highScore;
+                        },
+                        response => {
+                            console.log("Undo error: " + response.body);
+                        });
+                }
+            }
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>

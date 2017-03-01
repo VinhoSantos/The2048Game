@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using The2048Game.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using The2048Game.Models;
 using The2048Game.Extensions;
 
@@ -15,7 +16,7 @@ namespace The2048Game.Controllers
     public class GameController : Controller
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private ISession _session => _httpContextAccessor.HttpContext.Session;
+        private ISession Session => _httpContextAccessor.HttpContext.Session;
 
         public GameController(IHttpContextAccessor httpContextAccessor)
         {
@@ -25,11 +26,21 @@ namespace The2048Game.Controllers
         // GET: /Game/
         public IActionResult Index()
         {
-            var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
-            if (game == null)
+            var game = HttpContext.Session.GetObjectFromJson<Game>("Game") ?? StartNewGame();
+
+            var model = new GameViewModel()
             {
-                game = StartNewGame();
-            }
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return View(model);
+        }
+
+        public IActionResult Vue()
+        {
+            var game = HttpContext.Session.GetObjectFromJson<Game>("Game") ?? StartNewGame();
 
             var model = new GameViewModel()
             {
@@ -77,11 +88,47 @@ namespace The2048Game.Controllers
 
             return PartialView("_GameCube", model);
         }
-        
+
+        public IActionResult NextMoveVue(string move)
+        {
+            var game = HttpContext.Session.GetObjectFromJson<Game>("Game");
+            if (game == null)
+            {
+                game = StartNewGame();
+            }
+            else
+            {
+                int?[,] tempState = new int?[game.State.GetLength(0), game.State.GetLength(1)];
+                int tempScore = game.Score;
+                Array.Copy(game.State, tempState, game.State.Length);
+                game = CalculateGameState(game, move);
+                if (!AreGameStatesEqual(game.State, tempState))
+                {
+                    game.State = AddNewNumberToGrid(game.State);
+                    game.Undo = true;
+                    Array.Copy(tempState, game.PreviousState, game.State.Length);
+                    game.PreviousScore = tempScore;
+                }
+                if (NoMoreMovesLeft(game.State))
+                    game.GameOver = true;
+                else
+                    game.GameOver = false;
+            }
+
+            var model = new GameViewModel()
+            {
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return Json(model);
+        }
+
 
         public IActionResult NewGame()
         {
-            _session.Clear();
+            Session.Clear();
 
             Game game = StartNewGame();
 
@@ -93,6 +140,22 @@ namespace The2048Game.Controllers
             HttpContext.Session.SetObjectAsJson("Game", game);
 
             return PartialView("_GameCube", model);
+        }
+
+        public IActionResult NewGameVue()
+        {
+            Session.Clear();
+
+            Game game = StartNewGame();
+
+            var model = new GameViewModel()
+            {
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return Json(model);
         }
 
         public IActionResult Undo()
@@ -116,7 +179,29 @@ namespace The2048Game.Controllers
 
             return PartialView("_GameCube", model);
         }
-        
+
+        public IActionResult UndoVue()
+        {
+            Game game = HttpContext.Session.GetObjectFromJson<Game>("Game");
+
+            if (game != null)
+            {
+                game.State = game.PreviousState;
+                game.Score = game.PreviousScore;
+                game.Undo = false;
+                game.GameOver = false;
+            }
+
+            var model = new GameViewModel()
+            {
+                Game = game
+            };
+
+            HttpContext.Session.SetObjectAsJson("Game", game);
+
+            return Json(model);
+        }
+
 
         private Game CalculateGameState(Game game, string type = "up")
         {

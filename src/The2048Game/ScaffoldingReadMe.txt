@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Http;
+﻿
+ASP.NET MVC core dependencies have been added to the project.
+However you may still need to do make changes to your project.
+1. Add Scaffolding CLI tool to the project:
+    <ItemGroup>
+        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0-msbuild3-final" />
+    </ItemGroup>
 
-namespace The2048Game
-{
-    public class Startup
-    {
+2. Suggested changes to Startup class:
+    2.1 Add a constructor:
+        public IConfigurationRoot Configuration { get; }
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -19,20 +19,15 @@ namespace The2048Game
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
-
-        public IConfigurationRoot Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+    2.2 Add MVC services:
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddMvc();
-            services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
-            services.AddSession();
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        }
+       }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    2.3 Configure web app to use use Configuration and use MVC routing:
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -41,7 +36,6 @@ namespace The2048Game
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
@@ -50,16 +44,10 @@ namespace The2048Game
 
             app.UseStaticFiles();
 
-            // IMPORTANT: This session call MUST go before UseMvc()
-            app.UseSession();
-
-
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Game}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
-    }
-}
